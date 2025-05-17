@@ -5,71 +5,80 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
-    // Public variable to control speed, can be modeified in the inspector
-    public float speed = 1000f;
-    private Rigidbody Player;
+
+    private Rigidbody playerBody;
+    public float speed = 10.0f;
     private int score = 0;
     public int health = 5;
 
     // Start is called before the first frame update
     void Start()
     {
-        Player = GetComponent<Rigidbody>();
+        playerBody = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        // move player upward with the "w" key
-        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
         {
-            Player.AddForce(0,0, speed);
+           playerBody.AddForce(Vector3.forward * speed);
+        }
+        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+        {
+          playerBody.AddForce(Vector3.back * speed);
         }
 
-        // move player backwards with the "s" key
-        if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
-            Player.AddForce(0,0, -speed);
+            playerBody.AddForce(Vector3.left * speed);
         }
 
-        // move player to the right with the "d" key
-        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
         {
-            Player.AddForce(speed, 0, 0);
+            playerBody.AddForce(Vector3.right * speed);
         }
 
-        // move player to left with "a" key
-        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
-        {
-            Player.AddForce(-speed, 0, 0);
-        }
+        // Check if health equals 0 and reload the game
 
         if (health == 0)
         {
-            Debug.Log($"Gme Over!");
-            SceneManager.LoadScene("maze");
+            Debug.Log("Game Over!");
+
+            // Reload the game
+            // Scores resets to 0
+            // Health resets to 5
+
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
         }
+
+
     }
 
+    // Score is increased when the player collides with coin
     void OnTriggerEnter(Collider other)
     {
+        // check for the tag 'Pickup'
         if (other.CompareTag("Pickup"))
         {
             score++;
-            Debug.Log($"Score: {score}");
+            Debug.Log("Score: " + score);
+
             Destroy(other.gameObject);
         }
 
+        // Traps
         if (other.CompareTag("Trap"))
         {
             health--;
-            Debug.Log($"Health: {health}");
+            Debug.Log("Health: " + health);
         }
 
+        //Win
         if (other.CompareTag("Goal"))
         {
-            Debug.Log($"You win!");
+            Debug.Log("You win!");
         }
     }
-
 }
